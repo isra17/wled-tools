@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pyddp"
+version = "0.1.0"
+description = "Python implementation of Distributed Display Protocol"
+authors = ["isra17 <isra017@gmail.com>"]
+license = "GPLv3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyglet = "^2.0.7"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
