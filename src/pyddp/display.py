@@ -15,6 +15,9 @@ class Pixel:
     g: int = 0
     b: int = 0
 
+    def as_tuple(self) -> tuple[int, int, int]:
+        return self.r, self.g, self.b
+
     @classmethod
     def from_raw(cls, data: bytes) -> list["Pixel"]:
         pixels: list[Pixel] = []

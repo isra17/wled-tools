@@ -1,78 +1,92 @@
-import pyglet
-from pyglet import shapes
+import json
+import string
 import math
 
-INNER_SIZE = 80
-MIDDLE_SIZE = 100
-OUTER_MIDDLE_SIZE = 105
-OUTER_SIZE = 100
-START = (250, 490)
-CENTER = (250, 250)
+CENTER = (400, 400)
 
 def vec_add(*args):
     return list(map(sum, zip(*args)))
 
 def generate():
-    lines = []
-    pos = START
-    angle = 102 * math.pi / 180
+    keys = list(string.ascii_uppercase)
+    rings = [
+        keys[1:6] * 2,
+        keys[6:11] * 2,
+        keys[11:26] * 2,
+    ]
+
+    vertices = {}
+    edges = []
+
+    vertices_iter = iter(keys)
+
+    vertices[next(vertices_iter)] = CENTER
+    for distance in (150, 350):
+        for i, v in zip(range(5), vertices_iter):
+            angle = (2 * math.pi / 5) * i
+            point = vec_add(
+                CENTER,
+                (
+                    math.sin(angle) * distance,
+                    math.cos(angle) * distance
+                )
+            )
+            vertices[v] = point
+
+    distance = 380
+    for i, v in zip(range(15), vertices_iter):
+        angle = (2 * math.pi / 15) * i
+        point = vec_add(
+            CENTER,
+            (
+                math.sin(angle) * distance,
+                math.cos(angle) * distance
+            )
+        )
+        vertices[v] = point
+
+    for i in rings[0]:
+        edges.append(("A", i))
+
+    for i in range(5):
+        a = rings[0][i]
+        b = rings[0][i+1]
+        edges.append((a, b))
+
+    for i in range(5):
+        a = rings[0][i+5]
+        b = rings[0][i]
+        c = rings[1][i]
+        d = rings[2][i*3+1]
+        e = rings[2][i*3-1]
+        edges.append((a, b))
+        edges.append((b, c))
+        edges.append((c, d))
+        edges.append((c, e))
 
     for i in range(15):
-        end = vec_add(pos, (math.sin(angle) * OUTER_SIZE, math.cos(angle) * OUTER_SIZE))
-        lines.append((pos, end))
-        angle += (2 * math.pi / 15)
-        pos = end
+        a = rings[2][i]
+        b = rings[2][i+1]
+        edges.append((a, b))
 
-    pos = CENTER
-    for i in range(5):
-        angle = i * (2 * math.pi / 5)
-        end = vec_add(pos, (math.sin(angle) * INNER_SIZE, math.cos(angle) * INNER_SIZE))
-        lines.append((pos, end))
-
-        angle = (i+1) * (2 * math.pi / 5)
-        other_end = vec_add(pos, (math.sin(angle) * INNER_SIZE, math.cos(angle) * INNER_SIZE))
-        lines.append((end, other_end))
-
-        angle = i * (2 * math.pi / 5)
-        second_end = vec_add(end, (math.sin(angle) * MIDDLE_SIZE, math.cos(angle) * MIDDLE_SIZE))
-        lines.append((end, second_end))
-
-        angle = i * (2 * math.pi / 5) + (68 * math.pi/180)
-        outer_end = vec_add(second_end, (math.sin(angle) * OUTER_MIDDLE_SIZE, math.cos(angle) * OUTER_MIDDLE_SIZE))
-        lines.append((second_end, outer_end))
-
-        angle = i * (2 * math.pi / 5) - (68 * math.pi/180)
-        outer_end = vec_add(second_end, (math.sin(angle) * OUTER_MIDDLE_SIZE, math.cos(angle) * OUTER_MIDDLE_SIZE))
-        lines.append((second_end, outer_end))
-
-
-
-    return lines
-
-def display_dome():
-    lines = generate()
-
-    window = pyglet.window.Window(500, 500)
-
-    label = pyglet.text.Label('Hello, world',
-                          font_name='Times New Roman',
-                          font_size=36,
-                          x=window.width//2, y=window.height//2,
-                          anchor_x='center', anchor_y='center')
-
-    batch = pyglet.graphics.Batch()
-    batch_items = []
-    for (start, end) in lines:
-        batch_items.append(shapes.Line(*start, *end, width=2, color=(255, 0, 0), batch=batch))
-
-    @window.event
-    def on_draw():
-        window.clear()
-        batch.draw()
-
-    pyglet.app.run()
-
+    return {
+        "vertices": {
+            k: {
+                "x": x,
+                "y": y,
+            }
+            for k, (x, y) in vertices.items()
+        },
+        "edges": [
+            {
+                "leds_count": 60,
+                "from_vertex": a,
+                "to_vertex": b,
+            }
+            for (a, b) in edges
+        ]
+    }
 
 if __name__ == '__main__':
-    display_dome()
+    print(json.dumps(generate()))
 
