@@ -1,6 +1,6 @@
 import typing as t
 import dataclasses
-from pyddp import protocol
+from . import protocol
 
 T = t.TypeVar("T")
 

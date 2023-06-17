@@ -8,5 +8,5 @@ poetry install
 ### Run
 
 ```
-python -m pyddp.viewer dome.json
+python -m wled_tools.viewer dome.json
 ```

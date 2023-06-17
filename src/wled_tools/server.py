@@ -1,5 +1,5 @@
 import typing as t
-from pyddp import display
+from . import display
 import socketserver
 
 

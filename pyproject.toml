@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pyddp"
+name = "wled-tools"
 version = "0.1.0"
 description = "Python implementation of Distributed Display Protocol"
 authors = ["isra17 <isra017@gmail.com>"]
