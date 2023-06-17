@@ -12,7 +12,7 @@ def vec_add(*args):
     return list(map(sum, zip(*args)))
 
 
-class RingList(list):
+class RingList(list[T]):
     def __getitem__(self, index: int) -> T:
         return super().__getitem__(index % len(self))
 
@@ -47,27 +47,44 @@ def generate():
         )
         vertices[v] = point
 
-    for i in rings[0]:
-        edges.append(("A", i))
-
-    for i in range(5):
-        a = rings[0][i]
-        b = rings[0][i + 1]
+    for i in range(10, 0, -1):
+        a = rings[2][i + 1]
+        b = rings[2][i]
         edges.append((a, b))
 
-    for i in range(5):
-        a = rings[0][i]
-        b = rings[1][i]
-        c = rings[2][i * 3 + 1]
-        d = rings[2][i * 3 - 1]
-        edges.append((a, b))
-        edges.append((b, c))
-        edges.append((b, d))
-
-    for i in range(15):
+    for i in range(10, 15):
         a = rings[2][i]
         b = rings[2][i + 1]
         edges.append((a, b))
+
+    def make_segment(
+        i: int, reversed: bool = False, leg_reversed: bool = False
+    ) -> list:
+        a = rings[0][i - 1]
+        b = rings[0][i]
+        c = rings[1][i]
+
+        r = -1 if leg_reversed else 1
+        d = rings[2][i * 3 - 1 * r]
+        e = rings[2][i * 3 + 1 * r]
+
+        segment = [
+            ("A", a),
+            (a, b),
+            (b, c),
+            (c, d),
+            (c, e),
+        ]
+        if reversed:
+            return [(b, a) for a, b in segment[::-1]]
+        else:
+            return segment
+
+    edges.extend(make_segment(0, reversed=True))
+    edges.extend(make_segment(4, reversed=True, leg_reversed=True))
+    edges.extend(make_segment(1, reversed=False))
+    edges.extend(make_segment(3, reversed=True))
+    edges.extend(make_segment(2, reversed=False, leg_reversed=True))
 
     return {
         "vertices": {

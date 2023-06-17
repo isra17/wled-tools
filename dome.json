@@ -108,178 +108,53 @@
   "edges": [
     {
       "leds_count": 60,
-      "from_vertex": "A",
-      "to_vertex": "B"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "A",
-      "to_vertex": "C"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "A",
-      "to_vertex": "D"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "A",
-      "to_vertex": "E"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "A",
-      "to_vertex": "F"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "B",
-      "to_vertex": "C"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "C",
-      "to_vertex": "D"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "D",
-      "to_vertex": "E"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "E",
-      "to_vertex": "F"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "F",
-      "to_vertex": "B"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "B",
-      "to_vertex": "G"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "G",
-      "to_vertex": "M"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "G",
-      "to_vertex": "Z"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "C",
-      "to_vertex": "H"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "H",
-      "to_vertex": "P"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "H",
-      "to_vertex": "N"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "D",
-      "to_vertex": "I"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "I",
-      "to_vertex": "S"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "I",
-      "to_vertex": "Q"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "E",
-      "to_vertex": "J"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "J",
+      "from_vertex": "W",
       "to_vertex": "V"
     },
     {
       "leds_count": 60,
-      "from_vertex": "J",
-      "to_vertex": "T"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "F",
-      "to_vertex": "K"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "K",
-      "to_vertex": "Y"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "K",
-      "to_vertex": "W"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "L",
-      "to_vertex": "M"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "M",
-      "to_vertex": "N"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "N",
-      "to_vertex": "O"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "O",
-      "to_vertex": "P"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "P",
-      "to_vertex": "Q"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "Q",
-      "to_vertex": "R"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "R",
-      "to_vertex": "S"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "S",
-      "to_vertex": "T"
-    },
-    {
-      "leds_count": 60,
-      "from_vertex": "T",
+      "from_vertex": "V",
       "to_vertex": "U"
     },
     {
       "leds_count": 60,
       "from_vertex": "U",
-      "to_vertex": "V"
+      "to_vertex": "T"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "T",
+      "to_vertex": "S"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "S",
+      "to_vertex": "R"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "R",
+      "to_vertex": "Q"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "Q",
+      "to_vertex": "P"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "P",
+      "to_vertex": "O"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "O",
+      "to_vertex": "N"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "N",
+      "to_vertex": "M"
     },
     {
       "leds_count": 60,
@@ -305,6 +180,131 @@
       "leds_count": 60,
       "from_vertex": "Z",
       "to_vertex": "L"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "M",
+      "to_vertex": "G"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "Z",
+      "to_vertex": "G"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "G",
+      "to_vertex": "B"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "B",
+      "to_vertex": "F"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "F",
+      "to_vertex": "A"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "W",
+      "to_vertex": "K"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "Y",
+      "to_vertex": "K"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "K",
+      "to_vertex": "F"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "F",
+      "to_vertex": "E"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "E",
+      "to_vertex": "A"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "A",
+      "to_vertex": "B"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "B",
+      "to_vertex": "C"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "C",
+      "to_vertex": "H"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "H",
+      "to_vertex": "N"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "H",
+      "to_vertex": "P"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "V",
+      "to_vertex": "J"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "T",
+      "to_vertex": "J"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "J",
+      "to_vertex": "E"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "E",
+      "to_vertex": "D"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "D",
+      "to_vertex": "A"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "A",
+      "to_vertex": "C"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "C",
+      "to_vertex": "D"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "D",
+      "to_vertex": "I"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "I",
+      "to_vertex": "S"
+    },
+    {
+      "leds_count": 60,
+      "from_vertex": "I",
+      "to_vertex": "Q"
     }
   ]
 }
