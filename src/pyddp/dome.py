@@ -1,18 +1,25 @@
+import typing as t
+import collections
 import json
 import string
 import math
 
 CENTER = (400, 400)
+T = t.TypeVar("T")
 
 def vec_add(*args):
     return list(map(sum, zip(*args)))
 
+class RingList(list):
+    def __getitem__(self, index: int) -> T:
+        return super().__getitem__(index % len(self))
+
 def generate():
     keys = list(string.ascii_uppercase)
     rings = [
-        keys[1:6] * 2,
-        keys[6:11] * 2,
-        keys[11:26] * 2,
+        RingList(keys[1:6]),
+        RingList(keys[6:11]),
+        RingList(keys[11:26]),
     ]
 
     vertices = {}
@@ -21,7 +28,7 @@ def generate():
     vertices_iter = iter(keys)
 
     vertices[next(vertices_iter)] = CENTER
-    for distance in (150, 350):
+    for distance in (150, 300):
         for i, v in zip(range(5), vertices_iter):
             angle = (2 * math.pi / 5) * i
             point = vec_add(
@@ -54,15 +61,13 @@ def generate():
         edges.append((a, b))
 
     for i in range(5):
-        a = rings[0][i+5]
-        b = rings[0][i]
-        c = rings[1][i]
-        d = rings[2][i*3+1]
-        e = rings[2][i*3-1]
+        a = rings[0][i]
+        b = rings[1][i]
+        c = rings[2][i*3+1]
+        d = rings[2][i*3-1]
         edges.append((a, b))
         edges.append((b, c))
-        edges.append((c, d))
-        edges.append((c, e))
+        edges.append((b, d))
 
     for i in range(15):
         a = rings[2][i]
@@ -88,5 +93,5 @@ def generate():
     }
 
 if __name__ == '__main__':
-    print(json.dumps(generate()))
+    print(json.dumps(generate(), indent=2))
 

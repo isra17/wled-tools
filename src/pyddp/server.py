@@ -11,7 +11,6 @@ class DDPHandler(socketserver.BaseRequestHandler):
             # self.request is the TCP socket connected to the client
             data = self.request[0]
             self.server.display.feed_packet(data)
-            print(self.server.display.framebuffer)
         except (Exception, KeyboardInterrupt):
             raise
         except BaseException as e:
