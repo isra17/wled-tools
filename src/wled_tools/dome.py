@@ -7,12 +7,15 @@ import math
 CENTER = (400, 400)
 T = t.TypeVar("T")
 
+
 def vec_add(*args):
     return list(map(sum, zip(*args)))
+
 
 class RingList(list):
     def __getitem__(self, index: int) -> T:
         return super().__getitem__(index % len(self))
+
 
 def generate():
     keys = list(string.ascii_uppercase)
@@ -32,11 +35,7 @@ def generate():
         for i, v in zip(range(5), vertices_iter):
             angle = (2 * math.pi / 5) * i
             point = vec_add(
-                CENTER,
-                (
-                    math.sin(angle) * distance,
-                    math.cos(angle) * distance
-                )
+                CENTER, (math.sin(angle) * distance, math.cos(angle) * distance)
             )
             vertices[v] = point
 
@@ -44,11 +43,7 @@ def generate():
     for i, v in zip(range(15), vertices_iter):
         angle = (2 * math.pi / 15) * i
         point = vec_add(
-            CENTER,
-            (
-                math.sin(angle) * distance,
-                math.cos(angle) * distance
-            )
+            CENTER, (math.sin(angle) * distance, math.cos(angle) * distance)
         )
         vertices[v] = point
 
@@ -57,21 +52,21 @@ def generate():
 
     for i in range(5):
         a = rings[0][i]
-        b = rings[0][i+1]
+        b = rings[0][i + 1]
         edges.append((a, b))
 
     for i in range(5):
         a = rings[0][i]
         b = rings[1][i]
-        c = rings[2][i*3+1]
-        d = rings[2][i*3-1]
+        c = rings[2][i * 3 + 1]
+        d = rings[2][i * 3 - 1]
         edges.append((a, b))
         edges.append((b, c))
         edges.append((b, d))
 
     for i in range(15):
         a = rings[2][i]
-        b = rings[2][i+1]
+        b = rings[2][i + 1]
         edges.append((a, b))
 
     return {
@@ -89,9 +84,9 @@ def generate():
                 "to_vertex": b,
             }
             for (a, b) in edges
-        ]
+        ],
     }
 
-if __name__ == '__main__':
-    print(json.dumps(generate(), indent=2))
 
+if __name__ == "__main__":
+    print(json.dumps(generate(), indent=2))
