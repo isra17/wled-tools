@@ -19,9 +19,11 @@ class Viewer:
         self.display = display
         self.pixels = []
 
-        for start, end in mapping.segments:
-            for i in range(60):
-                rate = i / 60
+        for segment in mapping.segments:
+            start = segment.from_
+            end = segment.to
+            for i in range(segment.skip_pixels + segment.pixels_count):
+                rate = i / segment.pixels_count
                 dx = rate * (end.x - start.x)
                 dy = rate * (end.y - start.y)
                 px = start.x + dx

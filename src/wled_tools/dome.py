@@ -1,53 +1,133 @@
+import dataclasses
+from itertools import islice
+from .preset import Preset, Presets, Palette, Effect, Fx, Colors
+from .segment import Segment
+from .segments_mapping import SegmentsMapping, SegmentGroup
 import typing as t
-import collections
 import json
 import string
 import math
+from .mapping import Mapping, Point, Edge
 
-CENTER = (400, 400)
+CENTER = Point(400, 400)
 T = t.TypeVar("T")
-
-
-def vec_add(*args):
-    return list(map(sum, zip(*args)))
-
 
 class RingList(list[T]):
     def __getitem__(self, index: int) -> T:
         return super().__getitem__(index % len(self))
 
+@dataclasses.dataclass
+class TriSegments:
+    around: list[Segment]
+    middle: list[Segment]
+    top: list[Segment]
+
+    @property
+    def all(self) -> list[Segment]:
+        return self.around + self.middle + self.top
+
+    @classmethod
+    def from_mapping(cls, mapping: SegmentsMapping):
+        segments = mapping.wled_group_segments(
+            groups=[
+                # Around
+                SegmentGroup(offset=0, count=15),
+                # Middle
+                SegmentGroup(offset=15, count=3),
+                SegmentGroup(offset=20, count=3),
+                SegmentGroup(offset=27, count=3, reverse=True),
+                SegmentGroup(offset=30, count=3),
+                SegmentGroup(offset=37, count=3, reverse=True),
+                # Top
+                SegmentGroup(offset=18, count=2),
+                SegmentGroup(offset=23, count=2),
+                SegmentGroup(offset=25, count=2, reverse=True),
+                SegmentGroup(offset=33, count=2),
+                SegmentGroup(offset=35, count=2, reverse=True),
+            ]
+        )
+
+        return cls(
+            around=[next(segments)],
+            middle=list(islice(segments, 5)),
+            top=list(islice(segments, 5)),
+        )
+
+@dataclasses.dataclass
+class PentaSegments:
+    around: list[Segment]
+    sides: list[Segment]
+
+    @property
+    def all(self) -> list[Segment]:
+        return self.around + self.sides
+
+    @classmethod
+    def from_mapping(cls, mapping: SegmentsMapping):
+        segments = mapping.wled_group_segments(
+            groups=[
+                # Around
+                SegmentGroup(offset=0, count=15),
+                # Sides
+                SegmentGroup(offset=15, count=5),
+                SegmentGroup(offset=20, count=5),
+                SegmentGroup(offset=25, count=5, reverse=True),
+                SegmentGroup(offset=30, count=5),
+                SegmentGroup(offset=35, count=5, reverse=True),
+            ]
+        )
+
+        return cls(
+            around=[next(segments)],
+            sides=list(islice(segments, 5)),
+        )
+
+EDGES_PIXELS_COUNT = [
+    57, 57, 56, 57, 57,
+    56, 57, 57, 57, 57,
+    56, 55, 56, 56, 56,
+    56, 56, 57, 57, 57,
+    56, 53, 56, 57, 57,
+    56, 56, 57, 57, 57,
+    57, 57, 56, 58, 57,
+    57, 57, 56, 57, 57,
+]
+
+SKIP_PIXELS = [
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 1, 1, 0, 1,
+    0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+]
 
 def generate():
-    keys = list(string.ascii_uppercase)
     rings = [
-        RingList(keys[1:6]),
-        RingList(keys[6:11]),
-        RingList(keys[11:26]),
+        RingList(list(range(1, 6))),
+        RingList(list(range(6, 11))),
+        RingList(list(range(11, 26))),
     ]
 
-    vertices = {}
+    vertices = []
     edges = []
 
-    vertices_iter = iter(keys)
-
-    vertices[next(vertices_iter)] = CENTER
+    vertices.append(CENTER)
     for distance in (150, 300):
-        for i, v in zip(range(5), vertices_iter):
+        for i in range(5):
             angle = (2 * math.pi / 5) * i
-            point = vec_add(
-                CENTER, (math.sin(angle) * distance, math.cos(angle) * distance)
-            )
-            vertices[v] = point
+            vertices.append(CENTER + Point.from_polar(radius=distance, theta=angle))
 
     distance = 380
-    for i, v in zip(range(15), vertices_iter):
+    for i in range(15):
         angle = (2 * math.pi / 15) * i
-        point = vec_add(
-            CENTER, (math.sin(angle) * distance, math.cos(angle) * distance)
-        )
-        vertices[v] = point
+        vertices.append(CENTER + Point.from_polar(radius=distance, theta=angle))
 
-    for i in range(10, 0, -1):
+    for i in range(9, -1, -1):
         a = rings[2][i + 1]
         b = rings[2][i]
         edges.append((a, b))
@@ -69,7 +149,7 @@ def generate():
         e = rings[2][i * 3 + 1 * r]
 
         segment = [
-            ("A", a),
+            (0, a),
             (a, b),
             (b, c),
             (c, d),
@@ -86,24 +166,337 @@ def generate():
     edges.extend(make_segment(3, reversed=True))
     edges.extend(make_segment(2, reversed=False, leg_reversed=True))
 
-    return {
-        "vertices": {
-            k: {
-                "x": x,
-                "y": y,
+    return Mapping(
+        vertices=vertices,
+        edges=[
+            Edge(
+                pixels_count=pixels_count,
+                skip_pixels=skip,
+                from_vertex=a,
+                to_vertex=b,
+            ) for pixels_count, skip, [a, b] in zip(EDGES_PIXELS_COUNT, SKIP_PIXELS, edges)
+        ]
+    )
+
+def main():
+    mapping = generate()
+    segmap = SegmentsMapping.from_mapping(mapping=mapping, center=CENTER)
+
+    with open("settings/dome.json", "w") as f:
+        json.dump(mapping.to_dict(), f, indent=2)
+
+    ### Generate 2 Configuration: LED and Virtual.
+    base_config = segmap.to_config_dict()
+    led_config = base_config | {
+        "hw": {
+            "led": {
+                "ins": [
+                    {'start': 0, 'len': 568, 'pin': [4], 'type': 22},
+                    {'start': 568, 'len': 565, 'pin': [3], 'type': 22},
+                    {'start': 1133, 'len': 563, 'pin': [16], 'type': 22},
+                    {'start': 1696, 'len': 569, 'pin': [1], 'type': 22},
+                ]
             }
-            for k, (x, y) in vertices.items()
-        },
-        "edges": [
-            {
-                "leds_count": 60,
-                "from_vertex": a,
-                "to_vertex": b,
-            }
-            for (a, b) in edges
-        ],
+        }
     }
 
+    virtual_config = base_config | {
+        "hw": {
+            "led": {
+                "ins": [
+                    {'start': 0, 'len': 2265, 'pin': [192, 168, 1, 205], 'type': 80},
+                ]
+            }
+        }
+    }
+
+    with open("settings/cfg.base.json", "w") as f:
+        json.dump(base_config, f)
+
+    with open("settings/cfg.led.json", "w") as f:
+        json.dump(led_config, f)
+
+    with open("settings/cfg.virtual.json", "w") as f:
+        json.dump(virtual_config, f)
+
+    ### Generate the presets.
+    full_segments = segmap.wled_segments
+    tri_segments = TriSegments.from_mapping(segmap)
+    penta_segment = PentaSegments.from_mapping(segmap)
+    one_segment = list(segmap.wled_group_segments([SegmentGroup(offset=0, count=40)]))
+    with open("settings/presets.json", "w") as f:
+        json.dump(Presets([
+            Preset(
+                name="Rainbox Bands Spin",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.RainbowBand,
+                        fx=Fx.CircleSpin,
+                        speed=28,
+                        intensity=0,
+                    )
+                ]
+            ),
+            Preset(
+                name="Full Rainbox Spin",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.Rainbow,
+                        fx=Fx.CircleSpin,
+                        speed=28,
+                        intensity=0,
+                    )
+                ]
+            ),
+            Preset(
+                name="Lava Spiral",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.Lava,
+                        fx=Fx.CircleSpin,
+                        speed=150,
+                        intensity=215,
+                    )
+                ]
+            ),
+            Preset(
+                name="Red Blue Spiral",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.RedBlue,
+                        fx=Fx.SpiralSpin,
+                        speed=150,
+                        intensity=10,
+                    )
+                ]
+            ),
+            Preset(
+                name="Tiamat Spiral Spin",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.Tiamat,
+                        fx=Fx.SpiralSpin,
+                        speed=108,
+                        intensity=0,
+                    )
+                ]
+            ),
+            Preset(
+                name="Vintage Fast Spiral",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.Vintage,
+                        fx=Fx.SpiralSpin,
+                        speed=255,
+                        intensity=16,
+                    )
+                ]
+            ),
+            Preset(
+                name="Light Pink Spiral",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.LightPink,
+                        fx=Fx.SpiralSpin,
+                        speed=76,
+                        intensity=35,
+                    )
+                ]
+            ),
+            Preset(
+                name="Cloud Spiral",
+                effects=[
+                    Effect(
+                        segments=full_segments,
+                        palette=Palette.Cloud,
+                        fx=Fx.SpiralSpin,
+                        speed=126,
+                        intensity=0,
+                    )
+                ]
+            ),
+            Preset(
+                name="Rain",
+                effects=[
+                    Effect(
+                        segments=tri_segments.around,
+                        palette=Palette.Cloud,
+                        fx=Fx.ColorTwinkle,
+                        speed=180,
+                        intensity=180,
+                    ),
+                    Effect(
+                        segments=tri_segments.middle,
+                        palette=Palette.Cloud,
+                        fx=Fx.Rain,
+                        speed=230,
+                        intensity=255,
+                    ),
+                    Effect(
+                        segments=tri_segments.top,
+                        palette=Palette.Cloud,
+                        fx=Fx.ColorTwinkle,
+                        speed=180,
+                        intensity=180,
+                    )
+                ]
+            ),
+            Preset(
+                name="Strobe",
+                effects=[
+                    Effect(
+                        segments=[segment],
+                        palette=Palette.Solid,
+                        colors=[Colors.Black, Colors.White],
+                        fx=Fx.MultiStrobe,
+                        speed=100 - i*10,
+                        intensity=8,
+                    )
+                    for i, segment in enumerate(tri_segments.all)
+                ]
+            ),
+            Preset(
+                name="Analog Blend",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.Analogus,
+                        fx=Fx.Blend,
+                        speed=255,
+                        intensity=64,
+                    )
+                ]
+            ),
+            Preset(
+                name="Splash Breath",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.Splash,
+                        fx=Fx.Breath,
+                        speed=70,
+                        intensity=255,
+                    )
+                ]
+            ),
+            Preset(
+                name="Pink Dancing Shadow",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.PinkCandy,
+                        fx=Fx.DancingShadow,
+                        speed=170,
+                        intensity=255,
+                    )
+                ]
+            ),
+            Preset(
+                name="Toxy Chase",
+                effects=[
+                    Effect(
+                        segments=penta_segment.around,
+                        palette=Palette.ToxyReaf,
+                        fx=Fx.Blend,
+                        speed=255,
+                        intensity=255,
+                    ),
+                    Effect(
+                        segments=penta_segment.sides,
+                        palette=Palette.ToxyReaf,
+                        fx=Fx.Chase2,
+                        speed=255,
+                        intensity=255,
+                    )
+                ]
+            ),
+            Preset(
+                name="Party Fireworks",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.Party,
+                        fx=Fx.FireworkExploding,
+                        speed=64,
+                        intensity=64,
+                    )
+                ]
+            ),
+            Preset(
+                name="Rainbow Runner",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.Hult,
+                        fx=Fx.RainbowRunner,
+                        speed=64,
+                        intensity=255,
+                    )
+                ]
+            ),
+            Preset(
+                name="Fairy Dual",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.FairyReaf,
+                        fx=Fx.ScannerDual,
+                        speed=100,
+                        intensity=200,
+                    )
+                ]
+            ),
+            Preset(
+                name="Pink Meteor",
+                effects=[
+                    Effect(
+                        segments=penta_segment.all,
+                        palette=Palette.PinkCandy,
+                        fx=Fx.MeteorSmooth,
+                        speed=128,
+                        intensity=128,
+                    )
+                ]
+            ),
+            Preset(
+                name="Sunset Disolve",
+                effects=[
+                    Effect(
+                        segments=one_segment,
+                        palette=Palette.Sunset,
+                        fx=Fx.DisolveRandom,
+                        speed=128,
+                        intensity=32,
+                    )
+                ]
+            ),
+            Preset(
+                name="Fire",
+                effects=[
+                    Effect(
+                        segments=penta_segment.sides,
+                        palette=Palette.Lava,
+                        fx=Fx.Fire2012,
+                        speed=80,
+                        intensity=150,
+                    ),
+                    Effect(
+                        segments=penta_segment.around,
+                        palette=Palette.Orangery,
+                        fx=Fx.FireFlicker,
+                        speed=120,
+                        intensity=240,
+                    )
+                ]
+            ),
+        ]).to_dict(), f)
 
 if __name__ == "__main__":
-    print(json.dumps(generate(), indent=2))
+    main()
