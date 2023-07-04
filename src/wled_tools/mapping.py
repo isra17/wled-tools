@@ -3,6 +3,7 @@ import io
 import typing as t
 import json
 import dataclasses
+from .utils import grouper
 
 VerticeId = t.NewType("VerticeId", int)
 
@@ -100,3 +101,13 @@ class Mapping:
                 pixels_count=edge.pixels_count,
                 skip_pixels=edge.skip_pixels,
             )
+
+    def led_config(self, output_count: int=1) -> t.Iterable[tuple[int, int]]:
+        offset = 0
+        for edges in grouper(self.edges, output_count):
+            length = sum(e.pixels_count + e.skip_pixels for e in edges)
+            yield offset, length
+            offset += length
+
+
+

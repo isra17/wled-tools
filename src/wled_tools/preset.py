@@ -123,6 +123,7 @@ class Preset:
 
 @dataclasses.dataclass
 class Presets:
+    name: str
     presets: list[Preset]
 
     def to_dict(self) -> dict:
@@ -136,4 +137,18 @@ class Presets:
             ).to_dict()
             preset_dict["seg"].extend([{"stop": 0}] * (max_segments - len(preset_dict["seg"])))
             presets[str(i+1)] = preset_dict
+
+        presets[str(len(presets))] = {
+            "playlist": {
+                "ps": list(presets.keys() - ["0"]),
+                "dur": [1800] * (len(presets) - 1),
+                "transition": [7] * (len(presets) - 1),
+                "repeat": "0",
+                "r": True,
+            },
+            "on": True,
+            "n": self.name,
+            "ql": "1",
+        }
+
         return presets
