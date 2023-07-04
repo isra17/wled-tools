@@ -1,12 +1,8 @@
 import typing as t
 import dataclasses
 from . import protocol
+from .utils import grouper
 
-T = t.TypeVar("T")
-
-
-def grouper(iterable: t.Iterable[T], n: int) -> t.Iterable[list[T]]:
-    return zip(*([iter(iterable)] * n))
 
 
 @dataclasses.dataclass

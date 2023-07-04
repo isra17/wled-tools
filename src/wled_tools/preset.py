@@ -17,6 +17,10 @@ class Colors:
     Red = Color(255, 0, 0)
     Green = Color(0, 255, 0)
     Blue = Color(0, 0, 255)
+    Yellow = Color(255, 255, 0)
+    Cyan = Color(0, 255, 255)
+    Purple = Color(255, 0, 255)
+    Orange = Color(255, 128, 0)
 
 class Fx(enum.Enum):
     Static = 0

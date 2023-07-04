@@ -1,3 +1,5 @@
+from .state import apply_effect_to_segments
+from .preset import Color, Fx, Palette, Colors
 from rich import print
 import json
 import requests
@@ -22,6 +24,31 @@ def get():
         print(requests.get(wled_url + "/presets.json").json())
     else:
         print(requests.get(api_url).json())
+
+@app.command()
+def effect(
+    segments: t.Optional[list[int]] = None,
+    color: t.Optional[str] = None,
+    effect: t.Optional[str] = None,
+    palette: t.Optional[str] = None,
+    speed: t.Optional[int] = None,
+    intensity: t.Optional[int] = None,
+    brightness: t.Optional[int] = None,
+    on: t.Optional[bool] = True,
+) -> None:
+    state = requests.get(api_url + "state").json()
+    new_segments = apply_effect_to_segments(
+        state["seg"],
+        segments=segments,
+        color=getattr(Colors, color) if color else None,
+        effect=Fx[effect] if effect else None,
+        palette=Palette[palette] if palette else None,
+        speed=speed,
+        intensity=intensity,
+        brightness=brightness,
+        on=on,
+    )
+    print(requests.post(api_url + "state", json={"seg": new_segments}).json())
 
 @app.command()
 def set(

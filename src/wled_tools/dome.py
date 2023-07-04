@@ -32,27 +32,31 @@ class TriSegments:
             groups=[
                 # Around
                 SegmentGroup(offset=0, count=5),
-                SegmentGroup(offset=5, count=10),
-                SegmentGroup(offset=10, count=15, reverse=True),
+                SegmentGroup(offset=5, count=5),
+                SegmentGroup(offset=10, count=5, reverse=True),
                 # Middle
                 SegmentGroup(offset=15, count=3),
                 SegmentGroup(offset=20, count=3),
-                SegmentGroup(offset=27, count=3, reverse=True),
+                SegmentGroup(offset=26, count=1, reverse=True),
+                SegmentGroup(offset=28, count=2, reverse=True),
                 SegmentGroup(offset=30, count=3),
-                SegmentGroup(offset=37, count=3, reverse=True),
+                SegmentGroup(offset=36, count=1, reverse=True),
+                SegmentGroup(offset=38, count=2, reverse=True),
                 # Top
                 SegmentGroup(offset=18, count=2),
                 SegmentGroup(offset=23, count=2),
-                SegmentGroup(offset=25, count=2, reverse=True),
+                SegmentGroup(offset=25, count=1, reverse=True),
+                SegmentGroup(offset=27, count=1, reverse=True),
                 SegmentGroup(offset=33, count=2),
-                SegmentGroup(offset=35, count=2, reverse=True),
+                SegmentGroup(offset=35, count=1, reverse=True),
+                SegmentGroup(offset=37, count=1, reverse=True),
             ]
         )
 
         return cls(
             around=list(islice(segments, 3)),
-            middle=list(islice(segments, 5)),
-            top=list(islice(segments, 5)),
+            middle=list(islice(segments, 7)),
+            top=list(islice(segments, 7)),
         )
 
 @dataclasses.dataclass
@@ -70,8 +74,8 @@ class PentaSegments:
             groups=[
                 # Around
                 SegmentGroup(offset=0, count=5),
-                SegmentGroup(offset=5, count=10),
-                SegmentGroup(offset=10, count=15, reverse=True),
+                SegmentGroup(offset=5, count=5),
+                SegmentGroup(offset=10, count=5, reverse=True),
                 # Sides
                 SegmentGroup(offset=15, count=5),
                 SegmentGroup(offset=20, count=5),
@@ -86,21 +90,25 @@ class PentaSegments:
             sides=list(islice(segments, 5)),
         )
 
+
 EDGES_PIXELS_COUNT = [
     57, 57, 56, 57, 57, # 1
     56, 57, 57, 57, 57, # 2
+
     56, 55, 56, 56, 56, # 3
     56, 56, 57, 57, 57, # 4
 
     56, 53, 56, 57, 57, # 5
     56, 56, 57, 57, 57, # 6
-    57, 57, 56, 58, 57, # 7
-    57, 57, 56, 57, 59, # 8
+
+    56, 57, 56, 58, 57, # 7
+    57, 56, 56, 57, 59, # 8
 ]
 
 SKIP_PIXELS = [
     0, 0, 0, 0, 0,
     0, 0, 0, 0, 0,
+
     0, 1, 1, 0, 1,
     0, 0, 0, 0, 0,
 
@@ -214,12 +222,27 @@ def main():
     tri_segments = TriSegments.from_mapping(segmap)
     penta_segment = PentaSegments.from_mapping(segmap)
     one_segment = list(segmap.wled_group_segments([SegmentGroup(offset=0, count=40)]))
+
     with open("settings/presets.json", "w") as f:
         json.dump(Presets(
             name="Osstidburn",
             presets=[
             Preset(
-                name="Calibration",
+                name="Segment Calibration",
+                effects=[
+                    Effect(
+                        segments=[penta_segment.all[i]],
+                        colors=[color],
+                        palette=Palette.Solid,
+                        fx=Fx.Static,
+                        speed=255,
+                        intensity=64,
+                    )
+                    for i, color in enumerate([Colors.White, Colors.Green, Colors.Blue, Colors.Orange, Colors.Yellow, Colors.Cyan, Colors.Purple, Colors.Orange])
+                ]
+            ),
+            Preset(
+                name="Strip Calibration",
                 effects=[
                     Effect(
                         segments=full_segments[::2],

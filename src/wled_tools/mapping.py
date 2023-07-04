@@ -104,7 +104,7 @@ class Mapping:
 
     def led_config(self, output_count: int=1) -> t.Iterable[tuple[int, int]]:
         offset = 0
-        for edges in grouper(self.edges, output_count):
+        for edges in grouper(self.edges, len(self.edges) // output_count):
             length = sum(e.pixels_count + e.skip_pixels for e in edges)
             yield offset, length
             offset += length
