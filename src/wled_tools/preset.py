@@ -1,3 +1,4 @@
+import itertools
 import enum
 from .segment import Segment
 import dataclasses
@@ -42,6 +43,18 @@ class Fx(enum.Enum):
     CircleSpin = 118
     SpiralSpin = 119
 
+    PixelWave = 130
+    Juggles = 131
+    MatriPix = 132
+    Plasmoid = 134
+    Puddles = 135
+    MidNoise = 136
+    TwoDGEQ = 140
+    NoiseFire = 144
+    GravCenter = 157
+    GravCentric = 158
+    AudioComet = 192
+
 class Palette(enum.Enum):
     Solid = 2
     Cloud = 7
@@ -62,6 +75,7 @@ class Palette(enum.Enum):
     ToxyReaf = 58
     FairyReaf = 59
     PinkCandy = 61
+    RedReaf = 62
 
 
 @dataclasses.dataclass
@@ -126,33 +140,56 @@ class Preset:
         return self._effect_by_segment[segment].to_dict() | segment.to_dict()
 
 @dataclasses.dataclass
-class Presets:
+class Playlist:
     name: str
     presets: list[Preset]
 
+@dataclasses.dataclass
+class Presets:
+    playlists: list[Playlist]
+    presets: list[Preset]
+
     def to_dict(self) -> dict:
-        max_segments = max(len(p._segments) for p in self.presets)
+        max_segments = max(
+            len(p._segments)
+            for pp in itertools.chain((pl.presets for pl in self.playlists), [self.presets])
+            for p in pp
+        )
         presets = {"0": {}}
+        offset = len(self.playlists) + 1
 
         for i, preset in enumerate(self.presets):
+            n = offset + i
             preset_dict = dataclasses.replace(
                 preset,
-                name=f"{i+1:02}.{preset.name}"
+                name=f"{n:02}.{preset.name}"
             ).to_dict()
             preset_dict["seg"].extend([{"stop": 0}] * (max_segments - len(preset_dict["seg"])))
-            presets[str(i+1)] = preset_dict
+            presets[str(n)] = preset_dict
 
-        presets[str(len(presets))] = {
-            "playlist": {
-                "ps": list(presets.keys() - ["0"]),
-                "dur": [1800] * (len(presets) - 1),
-                "transition": [7] * (len(presets) - 1),
-                "repeat": "0",
-                "r": True,
-            },
-            "on": True,
-            "n": self.name,
-            "ql": "1",
-        }
+        offset += len(self.presets)
+
+        for p, playlist in enumerate(self.playlists):
+            for i, preset in enumerate(playlist.presets):
+                n = offset + i
+                preset_dict = dataclasses.replace(
+                    preset,
+                    name=f"{n:02}.{preset.name}"
+                ).to_dict()
+                preset_dict["seg"].extend([{"stop": 0}] * (max_segments - len(preset_dict["seg"])))
+                presets[str(n)] = preset_dict
+
+            presets[str(p+1)] = {
+                "playlist": {
+                    "ps": [str(offset + i) for i in range(len(playlist.presets))],
+                    "dur": [1800] * (len(playlist.presets)),
+                    "transition": [7] * (len(playlist.presets)),
+                    "repeat": "0",
+                    "r": True,
+                },
+                "on": True,
+                "n": f"{p+1:02}.{playlist.name}",
+                "ql": str(p + 1),
+            }
 
         return presets
