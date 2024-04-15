@@ -22,3 +22,17 @@ python -m wled_tools.api_client "${WLED_URL}" --scope presets set --file setting
 # Open the 2D viewer
 python -m wled_tools.viewer settings/dome.json
 ```
+
+You can also update WLED with:
+
+```
+python -m wled_tools.api_client "${WLED_URL}" update "${FIRMWARE_PATH}"
+```
+
+Or get the configs with 
+
+```
+python -m wled_tools.api_client "${WLED_URL}" --scope cfg get
+python -m wled_tools.api_client "${WLED_URL}" --scope presets get
+python -m wled_tools.api_client "${WLED_URL}" --scope state get
+```
