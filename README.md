@@ -8,5 +8,6 @@ poetry install
 ### Run
 
 ```
-python -m wled_tools.viewer dome.json
+# Config files
+python -m wled_tools.viewer settings/dome.json
 ```
